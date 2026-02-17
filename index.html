@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <title>Test IA HuggingFace Router 2026</title>
 <style>
-body{font-family:Arial,sans-serif;margin:20px;}
-#msgs{border:1px solid #002D58;padding:10px;height:300px;overflow-y:auto;background:#f9f9f9;}
-.user-msg{color:#002D58;font-weight:bold;margin:6px 0;}
-.ai-msg{color:#333;background:#eee;padding:5px 8px;border-radius:5px;margin:6px 0;}
+body { font-family: Arial, sans-serif; margin: 20px; }
+#msgs { border: 1px solid #002D58; padding: 10px; height: 300px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; }
+.user-msg { color: #002D58; font-weight: bold; margin: 6px 0; }
+.ai-msg { color: #333; background: #eee; padding: 5px 8px; border-radius: 5px; margin: 6px 0; }
 </style>
 </head>
 <body>
 
-<h3>Test IA Open Source HuggingFace (Router)</h3>
+<h3>Test IA HuggingFace Router</h3>
 
 <div id="msgs"></div>
 
@@ -42,7 +42,7 @@ send.onclick = async () => {
   try {
     const res = await fetch("/api/chat", {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: val })
     });
     const data = await res.json();
