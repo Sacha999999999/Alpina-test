@@ -2,25 +2,22 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Test IA Open Source</title>
+<title>Test IA HuggingFace</title>
 <style>
 body{font-family:Arial,sans-serif;margin:20px;}
 #msgs{border:1px solid #002D58;padding:10px;height:300px;overflow-y:auto;background:#f9f9f9;}
-.user{color:white;background:#002D58;padding:5px 10px;border-radius:5px;margin:5px 0;align-self:flex-end;}
-.ai{color:#333;background:#eee;padding:5px 10px;border-radius:5px;margin:5px 0;align-self:flex-start;}
-#input-container{margin-top:10px;display:flex;gap:5px;}
+.user-msg{color:#002D58;font-weight:bold;margin:6px 0;}
+.ai-msg{color:#333;background:#eee;padding:5px 8px;border-radius:5px;margin:6px 0;}
 </style>
 </head>
 <body>
 
-<h3>Test IA Open Source</h3>
+<h3>Test IA Open Source HuggingFace</h3>
 
-<div id="msgs" style="display:flex; flex-direction:column;"></div>
+<div id="msgs"></div>
 
-<div id="input-container">
-<input type="text" id="input" placeholder="tu vas bien ?" style="flex:1;">
+<input id="input" placeholder="Pose ta question..." style="width:300px;padding:6px;">
 <button id="send">Envoyer</button>
-</div>
 
 <script>
 const msgs = document.getElementById("msgs");
@@ -29,30 +26,33 @@ const send = document.getElementById("send");
 
 function addMessage(text, cls){
   const d = document.createElement("div");
-  d.className = cls;
   d.textContent = text;
+  d.className = cls;
   msgs.appendChild(d);
-  msgs.scrollTo({ top: msgs.scrollHeight, behavior: "smooth" });
+  msgs.scrollTop = msgs.scrollHeight;
 }
 
 send.onclick = async () => {
   const val = input.value.trim();
   if(!val) return;
-  addMessage(val, "user");
   input.value = "";
-  addMessage("L'IA réfléchit...", "ai");
-
+  addMessage(val, "user-msg");
+  addMessage("🤖 IA est en train de répondre...", "ai-msg");
   try {
     const res = await fetch("/api/chat", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({message: val})
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({message: val})
     });
     const data = await res.json();
-    // enlève le loader
-    msgs.lastChild.textContent = data.text;
-  } catch(err){
-    msgs.lastChild.textContent = "Erreur de connexion : " + err.message;
+    // remplacer le loader par la vraie réponse
+    const last = msgs.lastElementChild;
+    if (last) last.textContent = data.text;
+    else addMessage(data.text, "ai-msg");
+  } catch (err) {
+    const last = msgs.lastElementChild;
+    if (last) last.textContent = "❌ Erreur de connexion IA";
+    else addMessage("❌ Erreur de connexion IA", "ai-msg");
   }
 };
 </script>
