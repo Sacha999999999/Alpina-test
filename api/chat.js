@@ -1,38 +1,52 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") 
+  if (req.method !== "POST") {
     return res.status(405).json({ text: "Méthode non autorisée" });
+  }
 
   const { message } = req.body;
-  if (!message) return res.status(400).json({ text: "Message vide" });
+  if (!message) {
+    return res.status(400).json({ text: "Message vide" });
+  }
 
   try {
-    // Endpoint Router Hugging Face stable 2026
-    const HF_ROUTER = "https://router.huggingface.co/v1/chat/completions";
-    const MODEL = "openassistant/oasst-sft-4-pythia-12b"; // modèle public gratuit
-
-    const response = await fetch(HF_ROUTER, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.HUGGING_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [{ role: "user", content: message }]
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      return res.status(500).json({ text: `Erreur IA provider : ${errText}` });
-    }
+    const response = await fetch(
+      "https://router.huggingface.co/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HUGGING_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "meta-llama/Meta-Llama-3-8B-Instruct",
+          messages: [
+            {
+              role: "user",
+              content: message,
+            },
+          ],
+        }),
+      }
+    );
 
     const data = await response.json();
-    const text = data?.choices?.[0]?.message?.content || "🤖 L'IA n'a pas répondu";
 
-    res.status(200).json({ text });
+    if (!response.ok) {
+      return res.status(500).json({
+        text: `Erreur IA provider : ${JSON.stringify(data)}`,
+      });
+    }
 
-  } catch (err) {
-    res.status(500).json({ text: `Erreur serveur : ${err.message}` });
+    const text =
+      data?.choices?.[0]?.message?.content ||
+      "🤖 Pas de réponse du modèle.";
+
+    return res.status(200).json({ text });
+
+  } catch (error) {
+    return res.status(500).json({
+      text: `Erreur serveur : ${error.message}`,
+    });
   }
 }
+
