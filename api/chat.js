@@ -1,14 +1,14 @@
-// /api/chat.js
 export default async function handler(req, res) {
-  if (req.method !== "POST")
+  if (req.method !== "POST") 
     return res.status(405).json({ text: "Méthode non autorisée" });
 
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
 
   try {
+    // Endpoint Router Hugging Face stable 2026
     const HF_ROUTER = "https://router.huggingface.co/v1/chat/completions";
-    const MODEL = "deepseek-ai/DeepSeek-V3.2"; // modèle public compatible Router
+    const MODEL = "openassistant/oasst-sft-4-pythia-12b"; // modèle public gratuit
 
     const response = await fetch(HF_ROUTER, {
       method: "POST",
