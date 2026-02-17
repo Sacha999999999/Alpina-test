@@ -1,13 +1,13 @@
 export default async function handler(req, res) {
   if (req.method !== "POST")
-    return res.status(405).json({ text: "Method not allowed" });
+    return res.status(405).json({ text: "Méthode non autorisée" });
 
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
 
   try {
     const HF_ROUTER = "https://router.huggingface.co/v1/chat/completions";
-    const MODEL_NAME = "deepseek-ai/DeepSeek-V3.2"; // modèle avec provider disponible
+    const MODEL_NAME = "deepseek-ai/DeepSeek-V3.2"; // modèle public avec provider dispo
 
     const response = await fetch(HF_ROUTER, {
       method: "POST",
@@ -17,9 +17,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: MODEL_NAME,
-        messages: [
-          { role: "user", content: message }
-        ]
+        messages: [{ role: "user", content: message }]
       })
     });
 
