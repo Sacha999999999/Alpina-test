@@ -1,28 +1,20 @@
-// /api/chat.js
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ text: "Méthode non autorisée" });
-  }
+  if (req.method !== "POST") return res.status(405).json({ text: "Method not allowed" });
 
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
 
   try {
-    const HF_ROUTER = "https://router.huggingface.co/api/experimental/conversation";
-    // Remplacer "gpt2" par un modèle gratuit compatible, ex: "gpt2"
-    const MODEL = "gpt2";
+    const MODEL = "gpt2"; // modèle public gratuit
+    const HF_API_URL = `https://api-inference.huggingface.co/models/${MODEL}`;
 
-    const response = await fetch(HF_ROUTER, {
+    const response = await fetch(HF_API_URL, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.HUGGING_KEY}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: MODEL,
-        inputs: message,
-        options: { wait_for_model: true }
-      })
+      body: JSON.stringify({ inputs: message })
     });
 
     if (!response.ok) {
@@ -31,8 +23,7 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    // le Router renvoie un champ text ou conversation[0].generated_text
-    const text = data?.conversation?.[0]?.generated_text || data?.generated_text || "🤖 L'IA n'a pas répondu";
+    const text = Array.isArray(data) && data[0]?.generated_text ? data[0].generated_text : "🤖 Pas de réponse";
 
     res.status(200).json({ text });
 
@@ -40,3 +31,4 @@ export default async function handler(req, res) {
     res.status(500).json({ text: "Erreur serveur : " + err.message });
   }
 }
+
