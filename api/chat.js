@@ -1,5 +1,7 @@
+// /api/chat.js
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ text: "Méthode non autorisée" });
+  if (req.method !== "POST")
+    return res.status(405).json({ text: "Méthode non autorisée" });
 
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
@@ -21,8 +23,8 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      const err = await response.text();
-      return res.status(500).json({ text: `Erreur IA provider : ${err}` });
+      const errText = await response.text();
+      return res.status(500).json({ text: `Erreur IA provider : ${errText}` });
     }
 
     const data = await response.json();
