@@ -4,62 +4,57 @@
 <meta charset="UTF-8">
 <title>Test IA Open Source</title>
 <style>
-body { font-family:Arial,sans-serif; background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
-#chat-container { width:400px; border:2px solid #002D58; border-radius:10px; padding:15px; background:#fff; }
-#msgs { height:200px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; }
-.user-msg { color:#002D58; font-weight:bold; margin:5px 0; }
-.ai-msg { color:#333; margin:5px 0; }
-input { width:calc(100% - 60px); padding:5px; }
-button { width:50px; }
+body{font-family:Arial,sans-serif;margin:20px;}
+#msgs{border:1px solid #002D58;padding:10px;height:300px;overflow-y:auto;background:#f9f9f9;}
+.user{color:white;background:#002D58;padding:5px 10px;border-radius:5px;margin:5px 0;align-self:flex-end;}
+.ai{color:#333;background:#eee;padding:5px 10px;border-radius:5px;margin:5px 0;align-self:flex-start;}
+#input-container{margin-top:10px;display:flex;gap:5px;}
 </style>
 </head>
 <body>
 
-<div id="chat-container">
-  <div id="msgs"></div>
-  <input type="text" id="msg-input" placeholder="Votre question...">
-  <button id="send-btn">➤</button>
+<h3>Test IA Open Source</h3>
+
+<div id="msgs" style="display:flex; flex-direction:column;"></div>
+
+<div id="input-container">
+<input type="text" id="input" placeholder="tu vas bien ?" style="flex:1;">
+<button id="send">Envoyer</button>
 </div>
 
 <script>
-const msgs = document.getElementById('msgs');
-const input = document.getElementById('msg-input');
-const btn = document.getElementById('send-btn');
+const msgs = document.getElementById("msgs");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
 
-function addMessage(text, type){
-  const div = document.createElement('div');
-  div.textContent = text;
-  div.className = type==='user'?'user-msg':'ai-msg';
-  msgs.appendChild(div);
-  msgs.scrollTo({ top: msgs.scrollHeight, behavior:'smooth' });
+function addMessage(text, cls){
+  const d = document.createElement("div");
+  d.className = cls;
+  d.textContent = text;
+  msgs.appendChild(d);
+  msgs.scrollTo({ top: msgs.scrollHeight, behavior: "smooth" });
 }
 
-async function sendMessage(){
+send.onclick = async () => {
   const val = input.value.trim();
   if(!val) return;
-  input.value='';
-  addMessage(val,'user');
+  addMessage(val, "user");
+  input.value = "";
+  addMessage("L'IA réfléchit...", "ai");
 
-  addMessage('🤖 L’IA réfléchit...','ai');
-
-  try{
-    const res = await fetch('/api/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ message: val })
+  try {
+    const res = await fetch("/api/chat", {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message: val})
     });
     const data = await res.json();
-    // Supprime le loader
-    msgs.querySelector('.ai-msg:last-child').remove();
-    addMessage(data.text,'ai');
-  }catch(err){
-    msgs.querySelector('.ai-msg:last-child').remove();
-    addMessage('Erreur de connexion.','ai');
+    // enlève le loader
+    msgs.lastChild.textContent = data.text;
+  } catch(err){
+    msgs.lastChild.textContent = "Erreur de connexion : " + err.message;
   }
-}
-
-btn.onclick = sendMessage;
-input.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } };
+};
 </script>
 
 </body>
