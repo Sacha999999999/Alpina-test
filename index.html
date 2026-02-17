@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Test IA HuggingFace</title>
+<title>Test IA HuggingFace 2026</title>
 <style>
 body{font-family:Arial,sans-serif;margin:20px;}
-#msgs{border:1px solid #002D58;padding:10px;height:300px;overflow-y:auto;background:#f9f9f9;}
+#msgs{border:1px solid #002D58;padding:10px;height:300px;overflow-y:auto;background:#f9f9f9;display:flex;flex-direction:column;}
 .user-msg{color:#002D58;font-weight:bold;margin:6px 0;}
 .ai-msg{color:#333;background:#eee;padding:5px 8px;border-radius:5px;margin:6px 0;}
 </style>
 </head>
 <body>
 
-<h3>Test IA Open Source HuggingFace</h3>
+<h3>Test IA Open Source HuggingFace (Router 2026)</h3>
 
 <div id="msgs"></div>
 
@@ -37,22 +37,18 @@ send.onclick = async () => {
   if(!val) return;
   input.value = "";
   addMessage(val, "user-msg");
-  addMessage("🤖 IA est en train de répondre...", "ai-msg");
+  addMessage("🤖 IA réfléchit...", "ai-msg");
+  
   try {
     const res = await fetch("/api/chat", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({message: val})
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({message: val})
     });
     const data = await res.json();
-    // remplacer le loader par la vraie réponse
-    const last = msgs.lastElementChild;
-    if (last) last.textContent = data.text;
-    else addMessage(data.text, "ai-msg");
-  } catch (err) {
-    const last = msgs.lastElementChild;
-    if (last) last.textContent = "❌ Erreur de connexion IA";
-    else addMessage("❌ Erreur de connexion IA", "ai-msg");
+    msgs.lastChild.textContent = data.text;
+  } catch(err){
+    msgs.lastChild.textContent = "❌ Erreur de connexion IA : " + err.message;
   }
 };
 </script>
