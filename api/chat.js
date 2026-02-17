@@ -1,16 +1,7 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ text: "Méthode non autorisée" });
-  }
-
+  if (req.method !== "POST") return res.status(405).json({ text: "Méthode non autorisée" });
   const { message } = req.body;
-  if (!message) {
-    return res.status(400).json({ text: "Message vide" });
-  }
-
-  if (!process.env.HUGGING_KEY) {
-    return res.status(500).json({ text: "HUGGING_KEY manquant ❌" });
-  }
+  if (!message) return res.status(400).json({ text: "Message vide" });
 
   try {
     const response = await fetch("https://router.huggingface.co/v1/chat/completions", {
@@ -29,11 +20,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log("HF response:", data);
-
-    if (!response.ok) {
-      return res.status(500).json({ text: `Erreur IA provider : ${JSON.stringify(data)}` });
-    }
+    if (!response.ok) return res.status(500).json({ text: `Erreur IA provider : ${JSON.stringify(data)}` });
 
     const text = data?.choices?.[0]?.message?.content?.trim() || "🤖 Pas de réponse du modèle.";
     return res.status(200).json({ text });
