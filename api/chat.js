@@ -1,12 +1,13 @@
 export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ text: "Méthode non autorisée" });
+  if (req.method !== "POST")
+    return res.status(405).json({ text: "Method not allowed" });
 
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
 
   try {
-    const HF_ROUTER = "https://router.huggingface.co/api/models/gpt2"; // endpoint stable 2026
-    const MODEL = "gpt2"; // modèle gratuit, public et rapide
+    const HF_ROUTER = "https://router.huggingface.co/v1/chat/completions";
+    const MODEL_NAME = "deepseek-ai/DeepSeek-V3.2"; // modèle avec provider disponible
 
     const response = await fetch(HF_ROUTER, {
       method: "POST",
@@ -15,24 +16,23 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: MODEL,
-        inputs: message,
-        options: { wait_for_model: true }
+        model: MODEL_NAME,
+        messages: [
+          { role: "user", content: message }
+        ]
       })
     });
 
     if (!response.ok) {
       const errText = await response.text();
-      return res.status(500).json({ text: "Erreur IA : " + errText });
+      return res.status(500).json({ text: `Erreur IA provider : ${errText}` });
     }
 
     const data = await response.json();
-    // le Router renvoie un champ text ou conversation[0].generated_text
-    const text = data?.generated_text || data?.conversation?.[0]?.generated_text || "🤖 L'IA n'a pas répondu";
+    const text = data?.choices?.[0]?.message?.content || "🤖 Pas de réponse IA";
 
     res.status(200).json({ text });
-
   } catch (err) {
-    res.status(500).json({ text: "Erreur serveur : " + err.message });
+    res.status(500).json({ text: `Erreur serveur : ${err.message}` });
   }
 }
