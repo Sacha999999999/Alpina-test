@@ -2,39 +2,64 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini Test IA</title>
+<title>Test IA Open Source</title>
+<style>
+body { font-family:Arial,sans-serif; background:#f0f2f5; display:flex; justify-content:center; align-items:center; height:100vh; margin:0; }
+#chat-container { width:400px; border:2px solid #002D58; border-radius:10px; padding:15px; background:#fff; }
+#msgs { height:200px; overflow-y:auto; border:1px solid #ccc; padding:10px; margin-bottom:10px; }
+.user-msg { color:#002D58; font-weight:bold; margin:5px 0; }
+.ai-msg { color:#333; margin:5px 0; }
+input { width:calc(100% - 60px); padding:5px; }
+button { width:50px; }
+</style>
 </head>
 <body>
-<h2>Test IA Open Source</h2>
-<input id="input" placeholder="Pose ta question" style="width:300px;">
-<button id="send">Envoyer</button>
-<p id="response"></p>
+
+<div id="chat-container">
+  <div id="msgs"></div>
+  <input type="text" id="msg-input" placeholder="Votre question...">
+  <button id="send-btn">➤</button>
+</div>
 
 <script>
-const input = document.getElementById("input");
-const btn = document.getElementById("send");
-const resp = document.getElementById("response");
+const msgs = document.getElementById('msgs');
+const input = document.getElementById('msg-input');
+const btn = document.getElementById('send-btn');
 
-btn.onclick = async () => {
-  const msg = input.value.trim();
-  if (!msg) return;
-  resp.textContent = "Chargement...";
-  try {
-    const r = await fetch("/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg })
+function addMessage(text, type){
+  const div = document.createElement('div');
+  div.textContent = text;
+  div.className = type==='user'?'user-msg':'ai-msg';
+  msgs.appendChild(div);
+  msgs.scrollTo({ top: msgs.scrollHeight, behavior:'smooth' });
+}
+
+async function sendMessage(){
+  const val = input.value.trim();
+  if(!val) return;
+  input.value='';
+  addMessage(val,'user');
+
+  addMessage('🤖 L’IA réfléchit...','ai');
+
+  try{
+    const res = await fetch('/api/chat', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ message: val })
     });
-    const data = await r.json();
-    resp.textContent = data.text;
-  } catch (e) {
-    resp.textContent = "Erreur de connexion";
+    const data = await res.json();
+    // Supprime le loader
+    msgs.querySelector('.ai-msg:last-child').remove();
+    addMessage(data.text,'ai');
+  }catch(err){
+    msgs.querySelector('.ai-msg:last-child').remove();
+    addMessage('Erreur de connexion.','ai');
   }
-};
-</script>
-</body>
-</html>
+}
 
+btn.onclick = sendMessage;
+input.onkeydown = e => { if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } };
 </script>
 
 </body>
