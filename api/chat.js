@@ -1,4 +1,4 @@
-// api/chat.js
+// /api/chat.js
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ text: "Méthode non autorisée" });
@@ -7,11 +7,9 @@ export default async function handler(req, res) {
   const { message } = req.body;
   if (!message) return res.status(400).json({ text: "Message vide" });
 
-  // 🔑 Ton token Hugging Face
-  const HF_TOKEN = process.env.HUGGING_KEY; 
-  if (!HF_TOKEN) {
-    return res.status(500).json({ text: "HUGGING_KEY manquant ❌" });
-  }
+  // 🔑 Met ton token Hugging Face ici pour tester rapidement
+  // IMPORTANT : sur Vercel, tu peux remplacer par process.env.HUGGING_KEY
+  const HF_TOKEN = "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"; 
 
   try {
     const response = await fetch(
@@ -38,9 +36,9 @@ export default async function handler(req, res) {
     }
 
     const text = data?.choices?.[0]?.message?.content?.trim() || "🤖 Pas de réponse du modèle.";
-    res.status(200).json({ text });
+    return res.status(200).json({ text });
 
   } catch (err) {
-    res.status(500).json({ text: `Erreur serveur : ${err.message}` });
+    return res.status(500).json({ text: `Erreur serveur : ${err.message}` });
   }
 }
