@@ -9,7 +9,9 @@ export default async function handler(req, res) {
 
   // 🔑 Met ton token Hugging Face ici pour tester rapidement
   // IMPORTANT : sur Vercel, tu peux remplacer par process.env.HUGGING_KEY
-  const HF_TOKEN = process.env.HUGGINGFACE_API_KEY;
+  const HF_TOKEN = process.env.HUGGINGFACE_API_KEY?.trim();
+console.log("TOKEN LENGTH:", HF_TOKEN ? HF_TOKEN.length : "NO TOKEN");
+
 
 
   try {
