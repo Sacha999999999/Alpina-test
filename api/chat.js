@@ -9,6 +9,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log("HF KEY PRESENT:", !!process.env.HUGGINGFACE_API_KEY);
+
     const response = await fetch(
       "https://router.huggingface.co/v1/chat/completions",
       {
